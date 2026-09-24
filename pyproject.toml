@@ -1,0 +1,42 @@
+[project]
+name = "spoke"
+version = "0.1.0"
+description = "A hub-and-spoke map of what was decided, deferred, blocked or found across your projects -- kept beside a Claude memory store and put in front of the next session without anyone remembering to look."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE.md"]
+keywords = ["claude", "memory", "ledger", "decisions", "map", "mcp"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Documentation",
+]
+dependencies = ["fastapi", "uvicorn", "ruamel.yaml", "httpx", "mcp", "tomli; python_version<'3.11'"]
+
+[project.scripts]
+spoke = "spoke.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["spoke*"]
+
+# What the wheel must carry beyond .py files: the pages the server
+# serves and the hook scripts `hooks --install` registers. Without this
+# an installed package served 404 for every page. Found by building.
+[tool.setuptools.package-data]
+spoke = ["static/*", "hooks/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# The repo root on sys.path, so `tests.test_ledger_graph` resolves. Three
+# test modules import shared helpers from a sibling that way, and without
+# this only `python -m pytest` works -- it puts the working directory on
+# the path, bare `pytest` does not. CI runs bare `pytest`, so CI had
+# never once been green: four runs on main, four collection errors, while
+# every local `python -m pytest` said 600-odd passed. Keep CI on bare
+# `pytest` -- it is what a contributor types, and it is the invocation
+# that has to work.
+pythonpath = ["."]

@@ -1,0 +1,33 @@
+[store]
+# REQUIRED. No default: a baked-in path would silently point a second
+# project at the first project's memories. Also settable as SPOKE_STORE_PATH.
+path = "~/.claude/projects/<your-project-slug>/memory"
+# Wikilink targets that do not resolve and are known to be fine. Project-specific.
+accepted_absences = []
+
+[checks]
+stale_days = 30
+
+[llm]
+# One of: groq, openai, openrouter, together, ollama, vllm, custom.
+# Only providers speaking the same request shape are listed; an unknown
+# one is refused rather than quietly served by another vendor, because
+# the failure that would hide is your key sent somewhere you did not
+# choose. Also settable as LLM_PROVIDER.
+provider = "groq"
+# REQUIRED for a cloud provider, deliberately. There is no default: an
+# unpinned model is how an unnoticed bill starts, so Spoke refuses and
+# names the free-tier options instead of choosing for you. A local
+# provider (ollama, vllm) may leave this unset. Also LLM_MODEL.
+model = "llama-3.1-8b-instant"
+# Optional. Overrides the provider's own endpoint -- point it at a local
+# model server, or use it with provider = "custom". Also LLM_BASE_URL.
+# base_url = "http://localhost:11434/v1"
+
+[notify]
+# Optional. No default topic -- notification is off until you set one, and
+# `doctor` says so on every run rather than staying silent about it. Also
+# settable as SPOKE_NTFY_TOPIC.
+# ntfy_topic = "your-private-topic-name"
+# Defaults to the public ntfy.sh if unset. Also settable as SPOKE_NTFY_SERVER.
+# ntfy_server = "https://ntfy.sh"

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><!--BRAND--> · first run</title>
+  <link rel="stylesheet" href="/static/tokens.css?v=<!--ASSET_V-->">
+  <link rel="stylesheet" href="/static/chrome.css?v=<!--ASSET_V-->">
+  <link rel="stylesheet" href="/static/setup.css?v=<!--ASSET_V-->">
+  <!--BOARD_STYLESHEET-->
+</head>
+<body>
+  <header id="bar">
+    <span class="masthead"><a class="mark" href="/board" aria-label="<!--BRAND--> board"><!--MARK--></a><span class="masthead-text"><span class="masthead-line"><strong class="brand"><!--BRAND--></strong><!--AUTHOR--></span><span class="tagline"><!--TAGLINE--></span></span></span>
+    <nav id="pages" aria-label="Pages"><a href="/board">Board</a><a href="/scale">Scale</a><a href="/">Records</a><a href="/settings">Settings</a></nav>
+  </header>
+
+  <main>
+    <section id="intro">
+      <h1 id="headline">Nothing is on the map yet</h1>
+      <p class="lead"><!--BRAND--> keeps a ledger — what was decided, deferred, blocked or found
+      across your projects — and puts it in front of the next session without anyone
+      remembering to look. Four things make that work. Each step below does one of
+      them and moves on when it is true.</p>
+    </section>
+
+    <section id="step-demo">
+      <h2>Not sure yet? Try it with sample data</h2>
+      <p class="why">This builds a complete map from two real public repositories —
+      <a href="https://github.com/onlinejourno/tare">Tare</a> and
+      <a href="https://github.com/onlinejourno/forage">Forage</a> — so you can see what
+      Spoke says before you point it at anything of yours. It clones them, scans them, and
+      lays one example of each thing a person records on top: a hold, a block and its chain,
+      a deferral with its ruling, a decision that was superseded, a node gone stale, a former
+      name that still resolves. Every kind of flag the board can raise is raised at least once.</p>
+      <p class="why"><strong>It touches nothing of yours.</strong> The store, the project
+      registry and the config all live inside the folder you name below, and the command it
+      gives you back points at them explicitly.</p>
+      <form id="demo-form">
+        <label for="demo-dir">Build it in</label>
+        <input id="demo-dir" type="text" autocomplete="off" spellcheck="false" value="~/spoke-demo">
+        <button type="submit" class="primary">Build the sample map</button>
+      </form>
+      <p class="hint">Cloning two repositories takes a few seconds. Needs network access.</p>
+      <div id="demo-out" hidden>
+        <p class="hint">Built. Serve it with:</p>
+        <pre id="demo-cmd" class="out"></pre>
+      </div>
+      <p class="result" aria-live="polite"></p>
+    </section>
+
+    <h2 id="own-heading">Or set it up on your own work</h2>
+
+    <ol id="steps">
+      <li id="step-store" class="step">
+        <h2><span class="num">1</span> Point it at a memory store</h2>
+        <p class="why">A memory store is the folder Claude Code keeps a project's memory in —
+        <code>~/.claude/projects/&lt;project&gt;/memory</code>. Spoke reads the records there and
+        writes ledger nodes beside them. It never rewrites a record without a ruling.</p>
+        <details class="help">
+          <summary>What is a memory store, exactly?</summary>
+          <p>It is an ordinary folder of Markdown files kept under git — one file per record,
+          with a <code>MEMORY.md</code> index listing them. Claude Code writes them as it
+          works; you can read and edit them with anything.</p>
+          <p>Spoke adds a <code>ledger/</code> directory beside those records and writes its
+          own typed nodes there. It commits every write, so the history of what was decided
+          is the git history. There is deliberately <em>no</em> default path: a baked-in one
+          would silently point a second project at the first project's memories.</p>
+        </details>
+        <div id="store-candidates" hidden>
+          <p class="hint">Stores already on this machine:</p>
+          <ul id="candidate-list"></ul>
+        </div>
+        <form id="store-form">
+          <label for="store-path">Path to the store</label>
+          <input id="store-path" type="text" autocomplete="off" spellcheck="false" placeholder="~/.claude/projects/…/memory">
+          <button type="submit">Use this store</button>
+        </form>
+        <p class="result" aria-live="polite"></p>
+      </li>
+
+      <li id="step-project" class="step">
+        <h2><span class="num">2</span> Register a project</h2>
+        <p class="why">A project is a name and the repos it is made of. Everything else —
+        which store, what the products are, what the decisions were — derives from those
+        repos, so there is nothing else to fill in.</p>
+        <details class="help">
+          <summary>What counts as a project?</summary>
+          <p>Whatever you would answer "what are you working on?" with — one product, or a
+          whole estate of them. It is a label over a set of repository paths on this machine.</p>
+          <p>Registering several lets one Spoke map each separately, each with its own store
+          and its own capability axes. If you are trying Spoke out, one is plenty.</p>
+        </details>
+        <form id="project-form">
+          <label for="project-name">Name</label>
+          <input id="project-name" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. estate">
+          <label for="project-repos">Repo paths, one per line</label>
+          <textarea id="project-repos" rows="3" spellcheck="false" placeholder="~/projects/one&#10;~/projects/two"></textarea>
+          <button type="submit">Register</button>
+        </form>
+        <p class="result" aria-live="polite"></p>
+      </li>
+
+      <li id="step-content" class="step">
+        <h2><span class="num">3</span> Put something on the map</h2>
+        <p class="why">Two ways in. <strong>Scan</strong> reads the repos and derives the
+        products, decisions and shared code they contain — through the same gate a person
+        meets, and it reports what it could not read. Or <strong>report a problem</strong>
+        from any page; that becomes an open item the next session is handed.</p>
+        <div class="actions">
+          <button id="scan-preview" type="button">Preview the scan</button>
+          <button id="scan-write" type="button" class="primary">Scan and write</button>
+        </div>
+        <pre id="scan-out" class="out" hidden></pre>
+        <p class="result" aria-live="polite"></p>
+      </li>
+
+      <li id="step-axes" class="step">
+        <h2><span class="num">4</span> Declare the capability axes</h2>
+        <p class="why">The scale scores products on axes <em>you</em> name — there is
+        deliberately no built-in list. Until one exists the scale page says so and shows
+        nothing else.</p>
+        <div class="actions">
+          <a id="axes-link" class="button primary" href="/settings#axes">Declare them on the settings screen</a>
+        </div>
+        <p class="result" aria-live="polite"></p>
+        <p class="hint">Or from a terminal: <code id="axes-cmd">spoke projects axes --set 'reliability=Reliability:30'</code>.
+        This page notices either way.</p>
+      </li>
+    </ol>
+
+    <section id="done" hidden>
+      <h2>Ready</h2>
+      <p>The map has <strong id="done-nodes">0</strong> nodes. <a href="/board">Open the board</a>
+      · <a href="/scale">the scale</a> · <a href="/">the records</a>.</p>
+    </section>
+  </main>
+
+  <p id="status" role="status"></p>
+  <script src="/static/envelope.js?v=<!--ASSET_V-->"></script>
+  <script src="/static/setup.js?v=<!--ASSET_V-->"></script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # gitleaks scans HISTORY, not just the checkout: a key removed
+          # in a later commit is still a leaked key. The default shallow
+          # fetch would hand it one commit and report clean.
+          fetch-depth: 0
+      - name: Secret scan (full history)
+        # The BINARY, not gitleaks-action: that action requires a paid
+        # GITLEAKS_LICENSE for organisation-owned repositories, so it
+        # would fail here on licensing rather than on secrets -- a red
+        # gate that says nothing about the code.
+        #
+        # Pinned to an exact version, and to the same one used locally.
+        # A scanner whose rules move under you reports different things
+        # on the same tree; 8.24.x silently ignored allowlist config, so
+        # "latest" is how a gate quietly stops gating.
+        env:
+          GITLEAKS_VERSION: "8.30.1"
+        run: |
+          set -euo pipefail
+          url="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfL "$url" -o /tmp/gitleaks.tgz
+          tar -xzf /tmp/gitleaks.tgz -C /tmp gitleaks
+          /tmp/gitleaks version
+          # `detect` walks the whole history, which is why checkout above
+          # sets fetch-depth: 0. A secret removed in a later commit is
+          # still a leaked secret.
+          /tmp/gitleaks detect --no-banner --redact --exit-code 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Git identity for the runner
+        # The suite exercises the real store, which COMMITS. A fresh runner has
+        # no user.name/user.email, so `git commit` aborts with "empty ident name"
+        # and three tests fail for a reason that has nothing to do with the code.
+        # Set here rather than in the product: a spoke store must commit as
+        # whoever is using it, never as a name the package chose.
+        run: |
+          git config --global user.email "ci@example.invalid"
+          git config --global user.name "CI"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . pytest
+      - name: Tests
+        # This is the real identity gate: tests/test_no_estate_identity.py
+        # scans the whole git-tracked tree (not just spoke/), checks file
+        # NAMES as well as contents, and asserts config.toml itself is not
+        # tracked. Running the test -- rather than a separately maintained
+        # regex -- is what keeps this step and the belt-and-braces grep
+        # below from disagreeing about what is forbidden.
+        run: pytest -v
+      - name: Identity gate (visible grep, belt and braces)
+        run: |
+          # Belt and braces only: the pattern here MUST stay identical to
+          # FORBIDDEN in tests/test_no_estate_identity.py. The pytest step
+          # above is the actual gate (tree-wide, name+content, git ls-files
+          # as the file list); this step just makes a failure visible in
+          # the CI log without opening the pytest output, and excludes the
+          # same directories the test excludes -- including .github/ itself,
+          # since this step's own text is the pattern it greps for.
+          #
+          # docs/ IS SCANNED NOW. It used to be excluded, and that is how
+          # the repository's own specs came to carry real product names, a
+          # real machine path and live PR references while this gate
+          # reported clean. See docs/PLACEHOLDERS.md.
+          files=$(git ls-files -- . ':!tests' ':!.superpowers' ':!.github')
+          pattern='onlinejourno|galley|newsroom|pulse|daybook|frontmatter-name|opt-homebrew|/Users/|subhash|the hindu|hindustan times|\bacj\b'
+          # The carve-out, mirroring ALLOWED_LINKS/_LINK_FILES in the test:
+          # the two sibling MIT repos may be NAMED, as these exact full links,
+          # in README.md and spoke/demo.py and nowhere else. Strip them from
+          # those two files before matching, exactly as _is_allowed does --
+          # anything else left on the line still fails.
+          #
+          # This half is what drifted. Without it CI was red on every push
+          # from the day those credits were added, while the real gate passed.
+          # tests/test_no_estate_identity.py now asserts this step and that
+          # test agree, so the two cannot silently part again.
+          # Written as the exact literals the test lists, not a regex over
+          # them: the test asserts these strings appear here, so a paraphrase
+          # or an escaped variant would let the two drift apart again.
+          tare='https://github.com/onlinejourno/tare'
+          forage='https://github.com/onlinejourno/forage'
+          # The author's copyright line is the one place a person's name
+          # belongs. Stripped only in LICENSE.md; anything else left on
+          # that line still fails.
+          copyright='Subhash Rai'
+          bad=0
+          if echo "$files" | grep -niE "$pattern"; then
+            echo "estate identity found in a tracked file name"; bad=1
+          fi
+          for f in $files; do
+            case "$f" in
+              README.md|spoke/demo.py|spoke/static/setup.html) hits=$(sed -e "s#$tare##g" -e "s#$forage##g" "$f" | grep -niE "$pattern" || true) ;;
+              LICENSE.md)              hits=$(sed -e "s#$copyright##g" "$f" | grep -niE "$pattern" || true) ;;
+              *)                       hits=$(grep -niE "$pattern" "$f" || true) ;;
+            esac
+            if [ -n "$hits" ]; then
+              echo "$hits" | sed "s#^#$f:#"
+              bad=1
+            fi
+          done
+          if [ "$bad" -ne 0 ]; then echo "estate identity found in the shipped tree"; exit 1; fi
+          echo "identity gate: clean"

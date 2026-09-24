@@ -1,0 +1,143 @@
+/* The one place any colour, type or spacing value is defined.
+ *
+ * It used to be four places. app.css, settings.css, board.css and
+ * scale.css each carried their own :root block, and they had already
+ * drifted -- --muted was #f0f0f0 in three of them and #f4f4f4 in the
+ * fourth, and only one defined --dim and --accent at all. Two
+ * definitions of one thing is the failure this project exists to
+ * remove; it had four, in its own stylesheets.
+ *
+ * DARK FIRST. This is a tool that sits open beside an editor all day.
+ * The light set is the override, not the other way round.
+ *
+ * ── The idea the palette encodes ──────────────────────────────────
+ * The job of this tool is to make ABSENCE visible, and on a plain
+ * background absence is invisible: the background already means empty.
+ * So the GROUND is toned, and STOCK -- the panel surface -- is
+ * reserved for places where something is actually recorded. An
+ * unscored cell, an unmeasured axis, a node nobody wrote down is the
+ * ground showing through. Emptiness becomes a hole you can see rather
+ * than nothing at all.
+ *
+ * Do not paint a panel on something unknown, and do not leave a known
+ * thing on bare ground. That inversion is the design.
+ */
+:root {
+  color-scheme: dark light;
+
+  /* ── surfaces ─────────────────────────────────────────────────── */
+  --ground: #14171a;      /* NOT recorded. The plate, unprinted. */
+  --stock: #1e2327;       /* Something is known here. */
+  --stock-raised: #262c31;
+  --rule: #333b41;
+
+  /* ── text ─────────────────────────────────────────────────────── */
+  --ink: #e7e5e0;         /* warm off-white; ink is never neutral */
+  --ink-dim: #9aa1a6;
+
+  /* ── the two meaningful inks ──────────────────────────────────── */
+  /* Measured, in agreement, verified. The colour of a thing somebody
+     actually checked. */
+  --register: #57b0bf;
+  /* Deviation, block, misregistration. RATIONED: the moment this
+     becomes "the accent colour" it stops meaning deviation. Never use
+     it for a hover state, a link, or a heading. */
+  --drift: #f2778c;
+
+  /* ── flag severity (the board) ────────────────────────────────── */
+  /* Colour is ONE of three channels here; shape carries node type and
+     badge text carries the count and kind. See board.css. */
+  --sev-none: var(--ink-dim);
+  --sev-held: #8fb3e6;
+  --sev-warn: #d9a441;
+  --sev-bad: var(--drift);
+
+  /* ── score ramp (the scale) ───────────────────────────────────── */
+  /* A sequential SINGLE HUE, deliberately not red-to-green: red/green
+     is the commonest bad-to-good encoding and the commonest form of
+     colour-blindness cannot separate its ends. Built on --register, so
+     "higher score" and "actually measured" read as the same family. */
+  --s0: #1b2226;
+  --s1: #203440;
+  --s2: #26485a;
+  --s3: #2d5d74;
+  --s4: #35748f;
+  --s5: #4a93af;
+  --on-fill: #f2f7f9;
+
+  /* ── type: the family says WHO SAID IT ────────────────────────── */
+  /* No webfonts. A local tool reading a private memory store should
+     not make a network request to render its own text -- and every
+     platform ships all three of these.
+     Three roles, and the distinction is the product's own subject:
+     provenance. A reader can tell a thing a person wrote from a thing
+     a probe derived before reading a word of it. */
+  --font-ui: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-prose: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --step--1: 0.78rem;
+  --step-0: 0.875rem;
+  --step-1: 1.05rem;
+  --step-2: 1.35rem;
+  --step-3: 1.75rem;
+
+  /* ── compatibility aliases ────────────────────────────────────── */
+  /* The older names every stylesheet already uses. Kept so this file
+     could be introduced without rewriting four sheets at once; prefer
+     the semantic names above in anything new. */
+  --bg: var(--ground);
+  --fg: var(--ink);
+  --line: var(--rule);
+  --muted: var(--stock);
+  --dim: var(--ink-dim);
+  --accent: var(--register);
+  --bad: var(--drift);
+  --warn: var(--sev-warn);
+  --ok: #6fce9f;
+  --on-dark: var(--on-fill);
+}
+
+/* The light set. Same idea, inverted consistently: ground is a toned
+   plate, stock is paper. Not white-on-white -- if stock were #fff on a
+   #fff ground the absence would go invisible again, which is the one
+   thing this palette exists to prevent. */
+@media (prefers-color-scheme: light) {
+  :root {
+    --ground: #c9cbc4;
+    --stock: #f7f6f2;
+    --stock-raised: #fffefb;
+    --rule: #9da096;
+    --ink: #16130f;
+    --ink-dim: #5c625e;
+    --register: #1b5a66;
+    --drift: #b0324f;
+    --sev-held: #2f5e9e;
+    --sev-warn: #8a5a00;
+    --s0: #edf1f1;
+    --s1: #cfe0e3;
+    --s2: #a7c9cf;
+    --s3: #74aab4;
+    --s4: #418795;
+    --s5: #1b5a66;
+    --on-fill: #f7fbfc;
+    --ok: #0a6b3d;
+  }
+}
+
+/* Links use the process ink, never the browser's default blue and never
+   --drift: drift means deviation, and a link is not a problem. One rule
+   here so all four screens agree rather than each discovering it. */
+a { color: var(--register); }
+a:focus-visible, button:focus-visible, select:focus-visible,
+input:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--register);
+  outline-offset: 2px;
+}
+
+/* ── provenance classes ───────────────────────────────────────────
+   Apply these rather than setting font-family directly, so "who said
+   it" stays a single decision. */
+.prose { font-family: var(--font-prose); }
+.derived, .ident { font-family: var(--font-mono); font-size: 0.95em; }
+.ident { letter-spacing: -0.01em; }

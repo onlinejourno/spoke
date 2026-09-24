@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><!--BRAND--> · records</title>
+  <link rel="stylesheet" href="/static/tokens.css?v=<!--ASSET_V-->">
+  <link rel="stylesheet" href="/static/chrome.css?v=<!--ASSET_V-->">
+  <link rel="stylesheet" href="/static/app.css?v=<!--ASSET_V-->">
+  <!--BOARD_STYLESHEET-->
+</head>
+<body>
+  <header id="bar">
+    <span class="masthead"><a class="mark" href="/board" aria-label="<!--BRAND--> board"><!--MARK--></a><span class="masthead-text"><span class="masthead-line"><strong class="brand"><!--BRAND--></strong><!--AUTHOR--></span><span class="tagline"><!--TAGLINE--></span></span></span>
+    <nav id="pages" aria-label="Pages"><a href="/board">Board</a><a href="/scale">Scale</a><a href="/settings">Settings</a></nav>
+  </header>
+
+  <aside id="rail" aria-label="Records">
+    <div id="railhead">
+      <h2>Records <span id="count"></span></h2>
+      <input id="filter" type="search" placeholder="Filter by name or hook" autocomplete="off" spellcheck="false" aria-label="Filter records">
+    </div>
+    <div id="list" role="list"></div>
+    <p id="nomatch" hidden>No record matches.</p>
+  </aside>
+
+  <main>
+    <section id="empty">
+      <h1>Pick a record</h1>
+      <p class="lead">Each record is one fact the next session is handed &mdash; a memory file
+      beside the ledger. This page is where a record gets corrected without opening the file:
+      read it as it is, change it, commit it through the same gate <code>check</code> runs.</p>
+      <details id="howto" open>
+        <summary>How to read this page</summary>
+        <dl class="gloss">
+          <dt>hook</dt>
+          <dd>The one line under a record's name in the rail. It is the line the index carries
+          and the first thing a session reads about the record, so it is shown before the body.</dd>
+          <dt>Current</dt>
+          <dd>The record exactly as it is on disk. Read-only.</dd>
+          <dt>Proposed</dt>
+          <dd>Your version. Starts identical to Current; <strong>Save and commit</strong> lights
+          up the moment they differ.</dd>
+          <dt>Save and commit</dt>
+          <dd>Writes the file and commits it to the memory repo in one step. The write goes
+          through the store's gate: a link that no longer answers or a hook the index has lost
+          is refused, and the file stays as it was. If the record changed on disk while you were
+          editing, the save is refused and your edit is kept on screen.</dd>
+        </dl>
+      </details>
+    </section>
+
+    <section id="record" hidden>
+      <header id="recordhead">
+        <h1 id="title"></h1>
+        <p id="hook" class="hook"></p>
+        <p id="description" class="description"></p>
+      </header>
+      <div id="panes">
+        <section><h2>Current <span class="sub">on disk</span></h2><pre id="current"></pre></section>
+        <section><h2>Proposed <span class="sub" id="editstate">unchanged</span></h2><textarea id="proposed" spellcheck="false" aria-label="Proposed body"></textarea></section>
+      </div>
+      <div id="actions">
+        <button id="save" class="primary" disabled>Save and commit</button>
+        <button id="revert" disabled>Discard changes</button>
+        <p id="status" role="status"></p>
+      </div>
+      <ul id="advisories" hidden></ul>
+    </section>
+  </main>
+  <script src="/static/envelope.js?v=<!--ASSET_V-->"></script>
+  <script src="/static/app.js?v=<!--ASSET_V-->"></script>
+</body>
+</html>

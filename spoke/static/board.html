@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><!--BRAND--> · board</title>
+  <link rel="stylesheet" href="/static/tokens.css?v=<!--ASSET_V-->">
+  <link rel="stylesheet" href="/static/chrome.css?v=<!--ASSET_V-->">
+  <link rel="stylesheet" href="/static/board.css?v=<!--ASSET_V-->">
+  <!--BOARD_STYLESHEET-->
+</head>
+<body>
+  <header id="bar">
+    <span class="masthead"><a class="mark" href="/board" aria-label="<!--BRAND--> board"><!--MARK--></a><span class="masthead-text"><span class="masthead-line"><strong class="brand"><!--BRAND--></strong><!--AUTHOR--></span><span class="tagline"><!--TAGLINE--></span></span></span>
+    <nav id="lenses" aria-label="Lens"></nav>
+    <nav id="zoombox" aria-label="Detail"><span class="rail-label">Detail</span><span id="zoom" role="group"></span></nav>
+    <nav id="filters" aria-label="Flag filter"></nav>
+    <nav id="pages" aria-label="Pages"><a href="/scale">Scale</a><a href="/">Records</a><a href="/settings">Settings</a></nav>
+  </header>
+
+  <main>
+    <section id="query" aria-label="Flagged hubs">
+      <h2>Flagged <span id="querycount"></span></h2>
+      <ul id="querylist"></ul>
+      <p id="queryempty" hidden>Nothing flagged through this lens.</p>
+      <details id="howto">
+        <summary>How to read this map</summary>
+        <p>The map is drawn from the ledger &mdash; the record of what was
+        decided, deferred, blocked or found across the projects. It shows
+        what needs attention and why, so that nothing waits in a chat window
+        for someone to remember it.</p>
+
+        <dl class="gloss">
+          <dt>hub</dt>
+          <dd>The node this lens anchors on. On the product lens every
+          product is a hub; on the decision lens every decision is.</dd>
+          <dt>spoke</dt>
+          <dd>A node drawn around a hub because a relation joins them. The
+          same node can be a spoke of several hubs; it is drawn once.</dd>
+          <dt>lens</dt>
+          <dd>A question asked of the same graph. Switching lens re-hubs it
+          &mdash; nothing is copied, and no hub is the real root. The centre
+          is the project itself: a label, not a node, because nothing here
+          is the root.</dd>
+          <dt>detail</dt>
+          <dd>How much of the graph is drawn: hubs only, then each further
+          layer of node types. It adds; it does not magnify. Past the point
+          where the map fits, it scrolls.</dd>
+        </dl>
+
+        <p class="gloss-lead">A <strong>flag</strong> is computed when the map is
+        drawn, never stored. It names its <strong>origin</strong> &mdash; the
+        node it comes from &mdash; and the rail above groups by that.</p>
+        <dl class="gloss">
+          <dt class="sev-bad"><span class="dot" aria-hidden="true"></span> blocked</dt>
+          <dd>Something is waiting on something else. A block travels the
+          whole chain: if A waits on B and B on C, A is blocked by C.</dd>
+          <dt class="sev-bad"><span class="dot" aria-hidden="true"></span> deviates</dt>
+          <dd>Open work under a decision that is on hold &mdash; it is going
+          on while the thing governing it is stopped.</dd>
+          <dt class="sev-held"><span class="dot" aria-hidden="true"></span> held</dt>
+          <dd>A decision on hold reaches this node directly. A hold is a
+          scope, not a chain: it reaches one hop and stops.</dd>
+          <dt class="sev-warn"><span class="dot" aria-hidden="true"></span> unruled</dt>
+          <dd>Deferred, abandoned, deviated or superseded with no ruling
+          written &mdash; closed without saying why.</dd>
+          <dt class="sev-warn"><span class="dot" aria-hidden="true"></span> stale</dt>
+          <dd>Not updated for longer than its state allows. A block goes
+          stale soonest; something done is re-verified, not decayed.</dd>
+          <dt class="sev-bad"><span class="dot" aria-hidden="true"></span> unmet</dt>
+          <dd>The node says something should be observably true &mdash; a URL
+          answers, carries some text, is fresh &mdash; and the last scheduled check
+          found otherwise, or no check has run yet. Nobody having looked is not
+          the same as it being true.</dd>
+          <dt class="sev-warn"><span class="dot" aria-hidden="true"></span> unchecked</dt>
+          <dd>The node carries a checklist and items on it are still open. It
+          cannot be closed until they are ticked; that is what a checklist is for.</dd>
+          <dt class="sev-warn"><span class="dot" aria-hidden="true"></span> absent</dt>
+          <dd>On the capability lens only: a capability some products have
+          and this one lacks. What is missing, not what is broken.</dd>
+        </dl>
+
+        <p>Every flagged node carries the same signal three ways &mdash;
+        colour, shape and the badge &mdash; so it survives greyscale, a
+        printout and colour-blindness. The key along the bottom is drawn by
+        the same code that draws the map.</p>
+      </details>
+    </section>
+
+    <section id="empty" hidden aria-label="Nothing on the map">
+      <h2 id="empty-title">Nothing on the map</h2>
+      <p id="empty-why"></p>
+      <p id="empty-how"></p>
+    </section>
+    <section id="canvaswrap" aria-label="Map">
+      <div id="viewport"><svg id="canvas" role="img" aria-label="The map"></svg></div>
+      <dl id="key" aria-label="Key"></dl>
+    </section>
+
+    <aside id="detail" aria-label="Selected node" hidden></aside>
+  </main>
+
+  <footer id="skipped" hidden></footer>
+  <p id="status" role="status"></p>
+  <script src="/static/envelope.js?v=<!--ASSET_V-->"></script>
+  <script src="/static/board.js?v=<!--ASSET_V-->"></script>
+</body>
+</html>

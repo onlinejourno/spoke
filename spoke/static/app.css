@@ -1,0 +1,120 @@
+/* Records: the memory files beside the ledger.
+ *
+ * Bar across the top, the rail down the left, one record in the main
+ * pane. Same ground/stock/ink as every other page; the rail and both
+ * panes are stock because something is known there. Provenance rule:
+ * prose where writing is READ, mono where it is source or an
+ * identifier -- so a record's name and both panes are mono, and the
+ * hook (a person's one line about it) is prose. */
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 22rem 1fr;
+  grid-template-rows: auto 1fr;
+  height: 100dvh;
+  font: var(--step-0)/1.5 var(--font-ui);
+  color: var(--ink);
+  background: var(--ground);
+  overflow: hidden;
+}
+
+/* The bar every page shares. */
+#bar {
+  grid-column: 1 / -1;
+  background: var(--stock); border-bottom: 1px solid var(--line);
+  padding: .45rem .9rem; display: flex; align-items: center; gap: 1rem;
+}
+#pages { margin-left: auto; display: flex; gap: .9rem; }
+#pages a { color: var(--ink-dim); text-decoration: none; border-bottom: 1px solid var(--line); }
+#bar .report-open { margin-left: 0; }
+
+/* The rail. */
+#rail {
+  display: flex; flex-direction: column; min-height: 0;
+  background: var(--stock); border-right: 1px solid var(--line);
+}
+#railhead { padding: .6rem .75rem .5rem; border-bottom: 1px solid var(--line); }
+#railhead h2 {
+  margin: 0 0 .4rem; font: 600 var(--step--1)/1.4 var(--font-ui);
+  letter-spacing: .06em; text-transform: uppercase; color: var(--ink-dim);
+}
+#railhead h2 span { font-family: var(--font-mono); letter-spacing: 0; text-transform: none; }
+#filter {
+  width: 100%; font: inherit; font-family: var(--font-mono); font-size: var(--step--1);
+  color: var(--ink); background: var(--ground); border: 1px solid var(--line);
+  border-radius: 2px; padding: .35rem .5rem;
+}
+#list { overflow-y: auto; min-height: 0; flex: 1; }
+#list button {
+  display: grid; gap: .1rem; width: 100%; text-align: left;
+  padding: .45rem .75rem; border: 0; border-bottom: 1px solid var(--line);
+  background: none; color: inherit; cursor: pointer; font: inherit;
+}
+#list button .name { font-family: var(--font-mono); font-size: var(--step--1); word-break: break-all; }
+#list button .hook {
+  font: var(--step--1)/1.35 var(--font-prose); color: var(--ink-dim);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+#list button:hover, #list button:focus-visible { background: var(--stock-raised); outline: none; }
+#list button[aria-current="true"] { background: var(--stock-raised); box-shadow: inset 3px 0 0 var(--register); }
+#list button[aria-current="true"] .name { font-weight: 600; }
+#nomatch { margin: 0; padding: .75rem; color: var(--ink-dim); font-size: var(--step--1); }
+
+/* The main pane. */
+main { padding: 1rem 1.25rem; overflow-y: auto; min-width: 0; display: flex; flex-direction: column; }
+#empty { max-width: 46rem; }
+#empty h1 { margin: .25rem 0 .5rem; font-size: var(--step-3); line-height: 1.15; }
+.lead { margin: 0 0 1rem; color: var(--ink-dim); font-family: var(--font-prose); font-size: var(--step-1); line-height: 1.5; max-width: 60ch; }
+#howto { color: var(--ink-dim); font-size: var(--step--1); line-height: 1.5; }
+#howto summary { cursor: pointer; color: var(--ink); }
+#howto .gloss { margin: .5rem 0 0; }
+#howto .gloss dt { margin-top: .45rem; font: 600 var(--step--1)/1.4 var(--font-mono); color: var(--ink); }
+#howto .gloss dd { margin: .1rem 0 0; }
+code { font-family: var(--font-mono); font-size: .92em; }
+
+#record { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+#recordhead { margin-bottom: .75rem; }
+#title { margin: 0; font: 600 var(--step-2)/1.2 var(--font-mono); word-break: break-all; }
+#recordhead .hook { margin: .25rem 0 0; font: var(--step-1)/1.4 var(--font-prose); max-width: 70ch; }
+#recordhead .description { margin: .2rem 0 0; font: var(--step--1)/1.45 var(--font-prose); color: var(--ink-dim); max-width: 70ch; }
+
+#panes { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; flex: 1; min-height: 16rem; }
+#panes section { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+#panes h2 {
+  margin: 0 0 .35rem; font: 600 var(--step--1)/1.4 var(--font-ui);
+  letter-spacing: .06em; text-transform: uppercase; color: var(--ink-dim);
+}
+#panes h2 .sub { font-weight: 400; letter-spacing: 0; text-transform: none; margin-left: .4em; }
+#panes h2 .sub.dirty { color: var(--sev-warn); }
+#current, #proposed {
+  flex: 1; min-height: 0; min-width: 0; margin: 0;
+  white-space: pre-wrap; overflow: auto;
+  border: 1px solid var(--line); border-radius: 2px; padding: .75rem;
+  font: var(--step--1)/1.5 var(--font-mono);
+  background: var(--stock); color: var(--ink);
+}
+#proposed { resize: none; }
+#proposed:focus-visible { outline: none; border-color: var(--register); }
+
+#actions { display: flex; align-items: center; gap: .6rem; margin-top: .75rem; flex-wrap: wrap; }
+#actions button {
+  font: inherit; color: var(--ink); background: var(--ground);
+  border: 1px solid var(--line); border-radius: 3px; padding: .35rem .8rem; cursor: pointer;
+}
+#actions button.primary { border-color: var(--ink); }
+#actions button:hover:not(:disabled), #actions button:focus-visible { border-color: var(--ink); }
+#actions button:disabled { opacity: .5; cursor: default; }
+#status { margin: 0; font-size: var(--step--1); color: var(--ink-dim); }
+#status.bad { color: var(--drift); }
+#status.ok { color: var(--ok); }
+#status.warn { color: var(--sev-warn); }
+#advisories { margin: .5rem 0 0; padding-left: 1.25rem; color: var(--sev-warn); font-size: var(--step--1); }
+
+@media (max-width: 60rem) {
+  body { grid-template-columns: 1fr; grid-template-rows: auto 14rem 1fr; }
+  #rail { border-right: 0; border-bottom: 1px solid var(--line); }
+  #panes { grid-template-columns: 1fr; }
+}

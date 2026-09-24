@@ -1,0 +1,195 @@
+/* A SEQUENTIAL SINGLE-HUE ramp, not red-to-green.
+   Red/green is the commonest way to encode "bad to good" and the
+   commonest form of colour-blindness cannot separate the two ends of it.
+   One hue, varying in lightness, stays ordered for every reader -- and
+   the number and the bar in each cell mean the colour is never carrying
+   the value alone anyway.
+
+   These are neutral tokens carrying no brand. Point [board].stylesheet at
+   your own sheet to restyle: it is linked after this one, so redefining
+   these on :root is all it takes. */
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  font: var(--step-0)/1.5 var(--font-ui);
+  color: var(--ink);
+  background: var(--ground);
+  overflow-x: hidden;
+}
+#bar {
+  background: var(--stock);
+  display: flex;
+  gap: .75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: .6rem .9rem;
+  border-bottom: 1px solid var(--line);
+}
+#bar nav { margin-left: auto; }
+a { color: var(--accent); }
+main { padding: .9rem; max-width: 70rem; }
+h2 { font-size: 1.05rem; margin: 0 0 .4rem; }
+h3 { font-size: .9rem; margin: 0 0 .3rem; }
+
+#legend { background: var(--stock); border: 1px solid var(--line);
+  border-radius: .4rem; padding: .75rem; }
+#legend .loud { margin: 0 0 .75rem; }
+.legend-grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
+#ramp { display: flex; list-style: none; margin: 0 0 .4rem; padding: 0; }
+#ramp li {
+  flex: 1;
+  text-align: center;
+  padding: .3rem 0;
+  border: 1px solid var(--line);
+  border-right: 0;
+  font-variant-numeric: tabular-nums;
+}
+#ramp li:last-child { border-right: 1px solid var(--line); }
+#bases { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .2rem .5rem; }
+#bases dt { white-space: nowrap; font-weight: 600; }
+#bases dd { margin: 0; color: var(--dim); }
+.swatch {
+  display: inline-block;
+  width: .9rem; height: .9rem;
+  vertical-align: -2px;
+  background: var(--s3);
+  border: 1px solid var(--fg);
+}
+/* Basis is its OWN channel: a fill treatment plus a word, so it never
+   competes with the score's colour for the same pixel's meaning. */
+.b-measured  { background: var(--s3); }
+.b-asserted  {
+  background: repeating-linear-gradient(
+    45deg, var(--s3) 0 3px, transparent 3px 6px);
+}
+.b-unverified { background: transparent; border-style: dashed; }
+.b-none { background: var(--muted); border-style: dotted; }
+
+/* Freshness is a THIRD channel again, never a variation of the other
+   two: the score's colour says how high, the basis's fill says where the
+   number came from, and this says whether it still stands. It is a
+   greyscale top stripe PLUS the word written into the cell -- the
+   treatment alone never carries it, the same rule the ramp follows. */
+#freshness .fresh-chip {
+  display: inline-block;
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--fg);
+  padding: .1rem .35rem;
+  font-size: .78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+#legend .lead { margin: 0 0 .5rem; color: var(--dim); }
+/* Label OVER prose, not beside it. The chips are wide labels, and in an
+   `auto 1fr` grid the widest one claimed the column and left the prose a
+   strip about twelve words wide -- the legend ran a full screen tall.
+   Reported from this page, through this page. */
+#freshness { margin: 0; display: grid; grid-template-columns: 1fr; gap: .15rem 0; }
+#freshness dt { margin-top: .5rem; }
+#freshness dt:first-child { margin-top: 0; }
+#freshness dd { margin: 0 0 .25rem; }
+#freshness dt { white-space: nowrap; font-weight: 600; }
+#freshness dd { margin: 0; color: var(--dim); }
+#freshness .f-days { font-variant-numeric: tabular-nums; color: var(--fg); }
+
+#gridwrap { margin-top: 1rem; overflow-x: auto; }   /* the TABLE scrolls, never the body */
+table { border-collapse: collapse; min-width: 100%; }
+th, td { border: 1px solid var(--line); padding: .4rem .5rem; text-align: left;
+  background: var(--stock); }
+thead th { background: var(--stock-raised); font-size: .85rem; vertical-align: bottom; }
+thead .share { display: block; font-weight: 400; color: var(--dim); }
+td.cell { padding: .3rem .4rem; min-width: 6.5rem; }
+.cell .n { font-variant-numeric: tabular-nums; font-weight: 700; }
+.cell .basis { color: var(--dim); font-size: .78rem; margin-left: .3rem; }
+.cell .bar {
+  display: block;
+  height: .4rem;
+  margin-top: .25rem;
+  border: 1px solid var(--line);
+  background: var(--muted);
+}
+.cell .bar i { display: block; height: 100%; background: var(--fill, var(--s3)); }
+.cell.measured { background: var(--fill); }
+.cell.measured .n, .cell.measured .basis { color: var(--ink); }
+.cell.asserted {
+  background: repeating-linear-gradient(
+    45deg, var(--fill) 0 6px, var(--bg) 6px 12px);
+}
+.cell.unverified { background: var(--bg); outline: 2px dashed var(--line); outline-offset: -4px; }
+/* NOT a fill. The ground shows through, so an axis nobody assessed
+   reads as a hole in the grid rather than as a pale score. A zero is a
+   finding; this is an absence, and the two must not look alike. */
+.cell.none { background: transparent; color: var(--ink-dim); }
+.cell.none .n { font-weight: 400; }
+/* The fourth cell treatment. A stale or undated measurement still shows
+   its number and its basis -- suppressing either would hide the finding
+   -- and gains a stripe and a word saying it no longer counts. */
+.cell.stale { box-shadow: inset 0 4px 0 var(--fg); }
+.cell.undated { box-shadow: inset 0 4px 0 var(--fg); }
+.cell.stale, .cell.undated { padding-top: .55rem; }
+.cell .fresh { display: block; font-size: .78rem; font-weight: 600; margin-top: .15rem; }
+.cell.measured .fresh { color: var(--ink); }
+
+#composites { margin-top: 1.25rem; display: grid; gap: .6rem; }
+.comp { background: var(--stock); border: 1px solid var(--line);
+  border-radius: .4rem; padding: .6rem .75rem; }
+.comp h3 { margin: 0 0 .2rem; }
+.comp .value { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.comp .withheld { color: var(--dim); }
+.comp .withheld strong { color: var(--fg); }
+.comp .meta { color: var(--dim); font-size: .85rem; }
+#skipped, #status { padding: .5rem .9rem; margin: 0; border-top: 1px solid var(--line); }
+#skipped ul { margin: .25rem 0 0; padding-left: 1.1rem; }
+
+#tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+  margin-top: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+#tabs button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: .3rem .3rem 0 0;
+  padding: .35rem .7rem;
+  cursor: pointer;
+  margin-bottom: -1px;
+}
+#tabs button[aria-selected="true"] {
+  background: var(--bg);
+  border-color: var(--line);
+  border-bottom: 1px solid var(--bg);
+  font-weight: 600;
+}
+#tabs button .w { color: var(--dim); font-weight: 400; margin-left: .35rem; }
+#axisnote { margin-top: .75rem; color: var(--dim); }
+#gridwrap { margin-top: .75rem; }
+td.obs { color: var(--dim); min-width: 18rem; white-space: normal; }
+td.obs em { color: var(--fg); font-style: normal; }
+tr.unscored th[scope="row"], tr.unscored td { color: var(--dim); }
+
+.brand { font-weight: 700; letter-spacing: -0.01em; }
+
+/* ── provenance ───────────────────────────────────────────────────
+   Scores, identifiers and dates are derived: mono. The note is the one
+   thing on this page a person wrote, so it is set as writing. */
+.cell .n, tbody th[scope="row"] { font-family: var(--font-mono); }
+.comp .value { font-family: var(--font-mono); }
+td.obs { font-family: var(--font-prose); font-size: 1.02em; }
+#bases dd, #legend p { font-family: var(--font-ui); }
+.comp .withheld { font-family: var(--font-prose); font-size: 1.02em; }
+
+/* The empty state, when it is the whole page. */
+#noaxes { background: var(--stock); border: 1px solid var(--line); border-radius: 3px;
+          padding: 1rem 1.25rem; margin: 0 0 1.25rem; }
+#noaxes h2 { margin: 0 0 .5rem; }
+#noaxes pre { margin: .5rem 0 .75rem; padding: .6rem .8rem; overflow-x: auto;
+              background: var(--ground); border: 1px solid var(--line); border-radius: 2px;
+              font-family: var(--font-mono); font-size: .9rem; }
+#noaxes p { margin: 0 0 .5rem; max-width: 60ch; }
+#noaxes code { font-family: var(--font-mono); }

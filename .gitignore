@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.venv/
+config.toml
+config.local.toml
+# A backup of an ignored file is ignored. Without this a
+# timestamped config backup shows up as untracked and reads as
+# something to deal with, when the file it copies is already
+# deliberately out of the repo.
+config.toml.bak-*
+config.*.bak-*
+.superpowers/
+*.egg-info/
+# packaging output
+build/
+dist/

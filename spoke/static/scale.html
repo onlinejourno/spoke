@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><!--BRAND--> · scale</title>
+  <link rel="stylesheet" href="/static/tokens.css?v=<!--ASSET_V-->">
+  <link rel="stylesheet" href="/static/chrome.css?v=<!--ASSET_V-->">
+  <link rel="stylesheet" href="/static/scale.css?v=<!--ASSET_V-->">
+  <!--BOARD_STYLESHEET-->
+</head>
+<body>
+  <header id="bar">
+    <span class="masthead"><a class="mark" href="/board" aria-label="<!--BRAND--> board"><!--MARK--></a><span class="masthead-text"><span class="masthead-line"><strong class="brand"><!--BRAND--></strong><!--AUTHOR--></span><span class="tagline"><!--TAGLINE--></span></span></span>
+    <span>Capability scale</span>
+    <label id="typebox">for
+      <select id="type"><option value="product" selected>product</option></select>
+    </label>
+    <nav><a href="/board">Board</a> · <a href="/">Records</a> · <a href="/settings">Settings</a></nav>
+  </header>
+
+  <main>
+    <section id="noaxes" hidden aria-label="Nothing to score yet">
+      <h2>Nothing to score yet</h2>
+      <p class="loud">This project has declared no capability axes, so there is
+      no grid. Declare the first one and this page becomes a scorecard:</p>
+      <pre><code id="noaxes-cmd">spoke projects axes --set 'reliability=Reliability:30'</code></pre>
+      <p>One axis per <code>--set</code>, as <code>key=Label:weight</code>. There is
+      deliberately no built-in list: the axes that matter are the project's,
+      not this tool's. Once one exists, the legend and every node's row
+      appear here.</p>
+    </section>
+
+    <section id="legend" aria-label="How to read this">
+      <h2>How to read this</h2>
+      <p class="loud">On this page <strong>colour means the score</strong>.
+      On the <a href="/board">board</a> colour means <em>severity</em>. Two
+      different encodings — don't carry one across.</p>
+
+      <div class="legend-grid">
+        <div>
+          <h3>Score</h3>
+          <ol id="ramp" aria-label="Score ramp"></ol>
+          <p>Darker is higher. Every cell also carries the number and a bar,
+          so the score survives greyscale, a printout and colour-blindness.</p>
+        </div>
+        <div>
+          <h3>Basis — where the number came from</h3>
+          <dl id="bases">
+            <dt><span class="swatch b-measured"></span> measured</dt>
+            <dd>Somebody observed the live thing and wrote down what they saw.
+            <strong>Only these count toward a composite.</strong></dd>
+            <dt><span class="swatch b-asserted"></span> asserted</dt>
+            <dd>Claimed — from a plan, a README, a belief. Nobody looked.</dd>
+            <dt><span class="swatch b-unverified"></span> unverified</dt>
+            <dd>Explicitly could not be observed, and why.</dd>
+            <dt><span class="swatch b-none"></span> not scored</dt>
+            <dd>Nobody has assessed this axis. <strong>This is not a zero.</strong>
+            A zero is a finding; this is an absence.</dd>
+          </dl>
+        </div>
+        <div>
+          <h3>Freshness — whether it is still current</h3>
+          <p class="lead">A score that no longer counts carries a heavy stripe
+          along the top of its cell <strong>and says so in words</strong>. The
+          stripe never carries it alone — these are the words:</p>
+          <dl id="freshness">
+            <dt>current</dt>
+            <dd>Observed recently enough to still stand.</dd>
+            <dt><span class="fresh-chip">stale · <i>age</i> · does not count</span></dt>
+            <dd>Measured, but longer ago than this project's threshold
+            (<span class="f-days">—</span>), with the cell saying how long ago.
+            <strong>A stale measurement stops
+            counting toward the composite</strong>, exactly as an unmeasured
+            axis does — so a composite can <em>rise</em> when one ages out. Every
+            composite says what did not count and how old it was.</dd>
+            <dt><span class="fresh-chip">undated · does not count</span></dt>
+            <dd>Measured, with no observation date at all. There is no way to
+            tell it from current, so it does not count either.</dd>
+            <dt>not applicable</dt>
+            <dd>An <em>asserted</em> or <em>unverified</em> score never goes
+            stale: neither was an observation, so no date can make it untrue.
+            They stay visible and keep saying what is wrong with them.</dd>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <nav id="tabs" role="tablist" aria-label="Axis"></nav>
+
+    <section id="axisnote" hidden></section>
+
+    <section id="gridwrap" aria-label="Scores">
+      <table id="grid"></table>
+      <p id="empty" hidden></p>
+    </section>
+
+    <section id="composites" aria-label="Composites"></section>
+  </main>
+
+  <footer id="skipped" hidden></footer>
+  <p id="status" role="status"></p>
+  <script src="/static/envelope.js?v=<!--ASSET_V-->"></script>
+  <script src="/static/scale.js?v=<!--ASSET_V-->"></script>
+</body>
+</html>

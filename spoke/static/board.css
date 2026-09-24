@@ -1,0 +1,302 @@
+/* Tokens are deliberately neutral and carry NO estate identity -- a
+   brand belongs to whoever installs this, not to the package (see
+   tests/test_no_estate_identity.py, which fails the build if one gets
+   in). Point [board].stylesheet at your own sheet to restyle: it is
+   linked AFTER this one, so redefining these custom properties on
+   :root is all it takes. */
+* { box-sizing: border-box; }
+/* `hidden` must beat every display rule below it. #canvaswrap and
+   #detail set `display`, which silently overrides the attribute's own
+   `display: none` -- the panels then took grid space while showing
+   nothing and squeezed the query list to a few pixels. */
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  height: 100dvh;
+  font: var(--step-0)/1.5 var(--font-ui);
+  color: var(--ink);
+  /* GROUND, not a panel: the canvas is the unprinted plate, and what
+     is drawn on it is what somebody recorded. */
+  background: var(--ground);
+  overflow-x: hidden;         /* the body never scrolls sideways */
+}
+#bar {
+  background: var(--stock);
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  grid-template-areas:
+    "mast lenses  pages report"
+    "zoom filters filters filters";
+  gap: .35rem 1rem;
+  align-items: center;
+  padding: .45rem .9rem;
+  border-bottom: 1px solid var(--line);
+}
+#bar .masthead { grid-area: mast; padding-right: 1rem; border-right: 1px solid var(--line); }
+#lenses { grid-area: lenses; }
+#pages { grid-area: pages; }
+#bar .report-open { grid-area: report; }
+#zoombox { grid-area: zoom; display: inline-flex; align-items: center; gap: .5rem; color: var(--ink-dim); }
+#zoombox .rail-label { font: 600 var(--step--1)/1.4 var(--font-ui); letter-spacing: .06em; text-transform: uppercase; }
+#zoom { display: inline-flex; gap: .25rem; flex-wrap: wrap; }
+#filters { grid-area: filters; }
+#bar nav { display: flex; gap: .25rem; flex-wrap: wrap; }
+#pages { gap: .9rem; }
+#pages a { color: var(--ink-dim); text-decoration: none; border-bottom: 1px solid var(--line); }
+#pages a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+#bar .report-open { margin-left: 0; justify-self: end; }
+#bar .masthead .brand { font-size: var(--step-1); }
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: .25rem;
+  padding: .2rem .55rem;
+  cursor: pointer;
+}
+/* The chosen lens, filter or detail level is INK ON GROUND -- reversed
+   out -- not a faintly darker border. "Which lens am I on" was the
+   first thing a reader could not tell from the page. */
+button[aria-pressed="true"] { background: var(--ink); color: var(--ground); border-color: var(--ink); font-weight: 600; }
+main {
+  display: flex;
+  align-items: stretch;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+#query {
+  background: var(--stock);
+  flex: 0 0 auto;
+  width: 17rem;
+  max-width: 100%;
+  padding: .6rem .75rem;
+  overflow: auto;
+  border-right: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+}
+main:has(#canvaswrap[hidden]) #query { flex: 1 1 auto; width: auto; border-right: 0; }
+#query ul { list-style: none; margin: 0; padding: 0; }
+#query li { border-bottom: 1px solid var(--line); }
+#query h2 { margin: 0 0 .4rem; font: 600 var(--step--1)/1.4 var(--font-ui); letter-spacing: .06em;
+            text-transform: uppercase; color: var(--ink-dim); }
+/* One entry per origin: the dot and the kinds, the origin's own title
+   set as WRITING (a person wrote it), its ruling if it has one, then
+   the hubs it reaches as chips. */
+#query li.origin { padding: .45rem 0 .5rem; }
+.origin-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .35rem .5rem; }
+.origin-head .kinds { font: 600 var(--step--1)/1.3 var(--font-ui); color: var(--sev, var(--sev-none)); }
+.origin-title {
+  flex-basis: 100%; margin: 0; padding: 0; border: 0; border-radius: 0; text-align: left;
+  font: 500 var(--step-0)/1.35 var(--font-prose); color: var(--ink); background: none;
+}
+button.origin-title { cursor: pointer; }
+button.origin-title:hover, button.origin-title:focus-visible { text-decoration: underline; text-underline-offset: .15em; }
+.origin-meta { font: var(--step--1)/1.3 var(--font-ui); color: var(--ink-dim); }
+#query .ruling { margin: .3rem 0 0; font: var(--step--1)/1.45 var(--font-prose); color: var(--ink-dim); }
+.reach { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem .35rem; margin-top: .35rem; }
+.reach-label { font: var(--step--1)/1.3 var(--font-ui); color: var(--ink-dim); margin-right: .15rem; }
+.chip {
+  font: var(--step--1)/1.3 var(--font-mono); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 2px; padding: .05rem .4rem; background: none;
+}
+.chip:hover, .chip:focus-visible { border-color: var(--ink); }
+#howto { margin-top: .9rem; color: var(--ink-dim); font-size: var(--step--1); line-height: 1.5; }
+#howto summary { cursor: pointer; color: var(--ink); }
+#howto p { margin: .5rem 0 0; }
+#howto .gloss { margin: .5rem 0 0; }
+#howto .gloss dt { margin-top: .45rem; font: 600 var(--step--1)/1.4 var(--font-mono); color: var(--ink); }
+#howto .gloss dt.sev-bad, #howto .gloss dt.sev-warn, #howto .gloss dt.sev-held { color: var(--sev); }
+#howto .gloss dd { margin: .1rem 0 0; }
+#howto .gloss-lead { margin-top: .75rem; }
+/* The severity dot: the same custom property the node's stroke uses,
+   so the list, the key and the map cannot disagree about a colour. */
+.dot { display: inline-block; width: .6em; height: .6em; border-radius: 50%;
+       background: var(--sev, var(--sev-none)); vertical-align: baseline; }
+#canvaswrap {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+#viewport { min-height: 0; min-width: 0; overflow: auto; display: grid; place-items: center; }
+#canvas { display: block; }
+
+/* ── the key ───────────────────────────────────────────────────────
+   Three rows, one per channel, in the order a reader decodes a node:
+   what colour is it, what shape, how big. Each swatch is the SAME
+   class the nodes use, so the key cannot say one thing and the map
+   another. */
+#key {
+  margin: 0; padding: .45rem .9rem; border-top: 1px solid var(--line);
+  background: var(--stock);
+  display: grid; grid-template-columns: max-content 1fr; gap: .2rem 1rem;
+  align-items: baseline; font-size: var(--step--1); color: var(--ink-dim);
+}
+#key dt { margin: 0; font: 600 var(--step--1)/1.5 var(--font-ui); letter-spacing: .04em;
+          text-transform: uppercase; color: var(--ink-dim); }
+#key dd { margin: 0; display: flex; flex-wrap: wrap; gap: .25rem 1.1rem; }
+.key-item { display: inline-flex; align-items: center; gap: .35em; color: var(--ink);
+            font-family: var(--font-mono); }
+.key-item svg { overflow: visible; }
+.key-item .glyph { fill: var(--stock); stroke: var(--ink-dim); stroke-width: 1.5; }
+#detail {
+  background: var(--stock);
+  flex: 0 0 auto;
+  width: 20rem;
+  max-width: 100%;
+  border-left: 1px solid var(--line);
+  padding: .75rem .9rem;
+  overflow: auto;
+}
+#detail dl { margin: 0; }
+#detail dt { font-weight: 600; margin-top: .5rem; }
+#detail dd { margin: 0; }
+#skipped, #status { padding: .5rem .75rem; margin: 0; border-top: 1px solid var(--line); }
+#skipped ul { margin: .25rem 0 0; padding-left: 1.1rem; }
+.sev-none  { --sev: var(--sev-none); }
+.sev-held  { --sev: var(--sev-held); }
+.sev-warn  { --sev: var(--sev-warn); }
+.sev-bad   { --sev: var(--sev-bad); }
+.node .glyph { fill: var(--stock); stroke: var(--sev, var(--sev-none)); stroke-width: calc(2 / var(--k, 1)); }
+/* A node name is an identifier, not writing: mono, like every
+   other derived string on this page. */
+/* Text and strokes in USER units divided by the drawing's scale, so
+   they render at the same pixel size whether the map fits at 1:1 or is
+   shrunk to the floor. A map that fits more by shrinking its labels
+   drew 86 nodes as a hairball. */
+.node .label { fill: var(--ink); font-size: calc(11px / var(--k, 1)); font-family: var(--font-mono); }
+.node.hub .label { font-size: calc(13px / var(--k, 1)); font-weight: 600; }
+.node .badge { fill: var(--sev, var(--sev-none)); font-size: calc(11px / var(--k, 1)); font-weight: 600;
+  font-family: var(--font-ui); }
+.node[aria-selected="true"] .glyph { stroke-width: calc(4 / var(--k, 1)); }
+/* Closed nodes are drawn as ghosts: present, because they exist and
+   something live may still point at them, but not competing with the
+   open ones. A withdrawn scan node and a rejected decision both read
+   as "was here, no longer holds". `done` is NOT ghosted: an accepted
+   decision is a rule in force. */
+.node.state-abandoned, .node.state-superseded { opacity: .45; }
+.node.state-abandoned:hover, .node.state-superseded:hover,
+.node[aria-selected="true"] { opacity: 1; }
+.edge { stroke: var(--line); stroke-width: calc(1.5 / var(--k, 1)); fill: none; }
+/* Selecting a hub lights its spokes in the register ink and recedes
+   the rest: the local cluster reads as one thing without any hub
+   owning a colour of its own. */
+.edge.lit { stroke: var(--register); stroke-width: calc(2.5 / var(--k, 1)); }
+svg.has-selection .edge:not(.lit) { opacity: .3; }
+.node .halo { fill: none; stroke: var(--rule); stroke-width: calc(1 / var(--k, 1)); }
+.node[aria-selected="true"] .halo { stroke: var(--register); }
+/* Quiet labels: drawn, invisible, revealed on hover or focus. */
+.node .label.quiet { opacity: 0; }
+.node:hover .label.quiet, .node:focus-visible .label.quiet, .node[aria-selected="true"] .label.quiet { opacity: 1; }
+
+
+/* Three side-by-side panes need room they do not have in a narrow pane
+   or a split editor window: the map got squeezed to a strip while the
+   two text panes kept their width. Below this the panes stack, so the
+   map always has the full width of whatever it is given. */
+@media (max-width: 1100px) {
+  #bar {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "mast    report"
+      "lenses  lenses"
+      "filters filters"
+      "zoom    pages";
+  }
+  main { flex-direction: column; }
+  /* Everything that is not the map gives up height here. The bar
+     tightens, the flagged strip is two rows of chips and scrolls, the
+     key drops its row labels and runs as one wrapped line, the skipped
+     footer is one line. At 800x600 this takes the map from ~150px --
+     the smallest thing on the map page, as reported from the page --
+     to about half the viewport. */
+  #bar { padding: .35rem .75rem; gap: .25rem .75rem; }
+  #bar button { padding: .1rem .45rem; font-size: var(--step--1); }
+  #query {
+    width: auto; max-height: 8rem; border-right: 0; padding: .4rem .75rem;
+    border-bottom: 1px solid var(--line);
+  }
+  #query h2 { display: inline; margin-right: .75rem; }
+  #query ul { display: inline; }
+  #query li { display: inline; border: 0; }
+  #query li button { display: inline-grid; width: auto; padding: .1rem .3rem; }
+  #howto { display: inline; margin: 0 0 0 .5rem; }
+  #howto p { display: block; }
+  #key { grid-template-columns: 1fr; gap: 0; padding: .3rem .75rem; }
+  #key dt { display: none; }
+  #key dd { display: contents; }
+  #key dd::after { content: ""; }
+  #key { display: flex; flex-wrap: wrap; gap: .15rem .9rem; }
+  #skipped { padding: .3rem .75rem; font-size: var(--step--1); }
+  #skipped strong { display: inline; margin-right: .5rem; }
+  #skipped ul { display: inline; margin: 0; padding: 0; }
+  #skipped li { display: inline; }
+  #query ul { display: flex; flex-wrap: wrap; gap: .1rem .75rem; }
+  #query li { border: 0; }
+  #query li button { width: auto; padding: .15rem .3rem; }
+  #detail {
+    width: auto; max-height: 40vh; border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+  #canvaswrap { min-height: 0; flex: 1 1 auto; }
+}
+
+/* .brand, .masthead, .prism, .author: chrome.css, shared by every page */
+
+/* Behind the graph and out of the pointer's way: the centre orients the
+   reader, it is not something to click. Sizes are in viewBox units and
+   scale with the drawing, so the label keeps its proportion whether the
+   lens holds four nodes or four hundred. */
+.centre { pointer-events: none; }
+.centre text { text-anchor: middle; fill: var(--fg); }
+.centre .centre-word {
+  font-size: 46px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  opacity: .13;
+}
+.centre .centre-count { font-size: 20px; opacity: .35; }
+
+/* ── provenance in the detail panel ───────────────────────────────
+   The family says who said it: a title somebody typed is set as
+   writing, an identifier or a machine-generated flag detail is set as
+   output. Before reading a word you can tell which you are looking at.
+   That distinction IS this tool's subject. */
+#detail h2 { font-family: var(--font-prose); font-weight: 600; font-size: var(--step-2); }
+#detail dd { font-family: var(--font-mono); font-size: 0.95em; }
+#detail dd.written { font-family: var(--font-prose); font-size: 1em; }
+#detail ul li { font-family: var(--font-mono); font-size: 0.95em; }
+#query .chip { font-family: var(--font-mono); }
+#howto { font-family: var(--font-ui); }
+
+/* The empty map: one panel, one link, in the map's place. */
+#empty { flex: 1 1 auto; display: grid; place-content: center; text-align: center; padding: 2rem; }
+#empty h2 { margin: 0 0 .4rem; font-size: var(--step-2); }
+#empty p { margin: 0 0 .5rem; max-width: 48ch; color: var(--ink-dim); font-family: var(--font-prose); line-height: 1.5; }
+#empty #empty-how { color: var(--ink); }
+
+/* The time axis. Ink-dim, hairline: a reference, not a node. */
+.axis-rule { stroke: var(--line); stroke-width: calc(1 / var(--k, 1)); }
+.axis-tick { stroke: var(--ink-dim); stroke-width: calc(1 / var(--k, 1)); }
+.axis-tick.undated { stroke-dasharray: 3 3; }
+.axis-label { fill: var(--ink-dim); font-size: calc(11px / var(--k, 1)); font-family: var(--font-mono); text-anchor: middle; }
+.axis-label.month { fill: var(--ink); font-weight: 600; }
+
+/* On a timeline the edges are context, not the subject: faint until a
+   node is selected, then the selected node's own edges at full weight. */
+.timeline .edge { opacity: .18; }
+.timeline .edge.lit { opacity: 1; }
+
+/* checklist and expectations in the detail panel */
+#detail .checklist { margin: 0; padding-left: 1.1rem; font-family: var(--font-prose); }
+#detail .checklist li.done { color: var(--ink-dim); }
+#detail li.unmet { color: var(--sev-bad); }
+#detail li.met { color: var(--ink-dim); }

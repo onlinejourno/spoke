@@ -1,0 +1,138 @@
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font: var(--step-0)/1.5 var(--font-ui);
+  color: var(--fg);
+  background: var(--ground);
+}
+/* The same bar every other page carries; the settings page had none
+   and read as a different product from the board it configures. */
+#bar {
+  background: var(--stock); border-bottom: 1px solid var(--line);
+  padding: .45rem .9rem; display: flex; align-items: center; gap: 1rem;
+}
+#pages { margin-left: auto; display: flex; gap: .9rem; }
+#pages a { color: var(--ink-dim); text-decoration: none; border-bottom: 1px solid var(--line); }
+#bar .report-open { margin-left: 0; }
+main {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+h1 { margin-bottom: .25rem; }
+#config-path {
+  font-family: ui-monospace, monospace;
+  word-break: break-all;
+  color: var(--warn);
+  background: var(--muted);
+  border: 1px solid var(--line);
+  padding: .5rem .75rem;
+  margin: 0 0 1.5rem;
+}
+.field {
+  margin-bottom: 1.25rem;
+}
+.field label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: .25rem;
+}
+.field .help {
+  margin: 0 0 .4rem;
+  color: var(--fg);
+  opacity: .75;
+}
+.field input,
+.field textarea {
+  width: 100%;
+  font: inherit;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  padding: .4rem .5rem;
+}
+.field textarea {
+  min-height: 4rem;
+  resize: vertical;
+  font-family: ui-monospace, monospace;
+}
+.field .field-error {
+  color: var(--bad);
+  margin: .3rem 0 0;
+  display: none;
+}
+.field.has-error input,
+.field.has-error textarea {
+  border-color: var(--bad);
+}
+.field.has-error .field-error {
+  display: block;
+}
+.field .env-override-notice {
+  color: var(--warn);
+  background: var(--muted);
+  border: 1px solid var(--line);
+  padding: .4rem .5rem;
+  margin: .4rem 0 0;
+}
+#rewrite-note {
+  color: var(--fg);
+  opacity: .75;
+  margin: 0 0 .75rem;
+}
+#api-key-note {
+  border: 1px solid var(--line);
+  background: var(--muted);
+  padding: .75rem;
+  margin: 1.5rem 0;
+}
+button#save-settings {
+  padding: .5rem 1.25rem;
+  border: 1px solid var(--line);
+  background: var(--muted);
+  color: var(--fg);
+  cursor: pointer;
+  font: inherit;
+}
+button#save-settings:disabled {
+  cursor: not-allowed;
+  opacity: .6;
+}
+#save-status {
+  margin-top: .75rem;
+}
+#save-status.ok { color: var(--ok); }
+#save-status.bad { color: var(--bad); }
+#save-status.warn { color: var(--warn); }
+p#back-link a, p#settings-link a {
+  color: inherit;
+}
+
+/* ── capability axes ────────────────────────────────────────────── */
+#axes { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+#axes h2 { margin: 0 0 .35rem; }
+#axes .help { margin: 0 0 .75rem; color: var(--fg); opacity: .75; }
+.axes-head { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; margin: .5rem 0 .75rem; }
+.axes-head label { font-weight: 600; }
+.axes-head select, .axes-head input { font: inherit; color: var(--fg); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 2px; padding: .3rem .5rem; }
+#axes-table { width: 100%; border-collapse: collapse; }
+#axes-table th { text-align: left; font-size: var(--step--1); color: var(--dim);
+  padding: .3rem .4rem; border-bottom: 1px solid var(--line); }
+#axes-table td { padding: .25rem .4rem; vertical-align: middle; }
+#axes-table input { width: 100%; font: inherit; color: var(--fg); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 2px; padding: .3rem .5rem; }
+#axes-table input.key { font-family: ui-monospace, Menlo, monospace; }
+#axes-table td.share { font-variant-numeric: tabular-nums; color: var(--dim); white-space: nowrap; }
+#axes-table td.ops { white-space: nowrap; }
+#axes-table td.ops button { font: inherit; font-size: var(--step--1); color: var(--dim);
+  background: none; border: 1px solid var(--line); border-radius: 2px; padding: .1rem .45rem;
+  cursor: pointer; margin-left: .2rem; }
+#axes-table td.ops button:hover { color: var(--fg); border-color: var(--fg); }
+#axes-table tr.dup input.key { border-color: var(--bad); }
+.axes-actions { display: flex; gap: .5rem; margin: .75rem 0; }
+.axes-actions button { font: inherit; color: var(--fg); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 2px; padding: .35rem .8rem; cursor: pointer; }
+#axes-save { border-color: var(--fg); }
+#axes-status.ok { color: var(--ok); } #axes-status.bad { color: var(--bad); }

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><!--BRAND--> · settings</title>
+  <link rel="stylesheet" href="/static/tokens.css?v=<!--ASSET_V-->">
+  <link rel="stylesheet" href="/static/chrome.css?v=<!--ASSET_V-->">
+  <link rel="stylesheet" href="/static/settings.css?v=<!--ASSET_V-->">
+  <!--BOARD_STYLESHEET-->
+</head>
+<body>
+  <header id="bar">
+    <span class="masthead"><a class="mark" href="/board" aria-label="<!--BRAND--> board"><!--MARK--></a><span class="masthead-text"><span class="masthead-line"><strong class="brand"><!--BRAND--></strong><!--AUTHOR--></span><span class="tagline"><!--TAGLINE--></span></span></span>
+    <nav id="pages" aria-label="Pages"><a href="/board">Board</a> · <a href="/scale">Scale</a> · <a href="/">Records</a></nav>
+  </header>
+  <main>
+    <h1>Settings</h1>
+    <p>Editing:</p>
+    <p id="config-path">loading&hellip;</p>
+
+    <form id="settings-form">
+      <div class="field" id="field-store_path">
+        <label for="store_path">Memory store path</label>
+        <p class="help">The folder holding this project's .md memory records. Must exist, be a directory, and contain at least one .md file.</p>
+        <input type="text" id="store_path" name="store_path" autocomplete="off">
+        <p class="field-error"></p>
+      </div>
+
+      <div class="field" id="field-stale_days">
+        <label for="stale_days">Stale after (days)</label>
+        <p class="help">How many days a record can go unchecked before the `stale` command flags it. Must be a positive whole number.</p>
+        <input type="number" id="stale_days" name="stale_days" min="1" step="1">
+        <p class="field-error"></p>
+      </div>
+
+      <div class="field" id="field-accepted_absences">
+        <label for="accepted_absences">Accepted absences</label>
+        <p class="help">Names that are allowed to be missing without failing `check` -- one per line. Leave blank lines out; each entry must be non-empty.</p>
+        <textarea id="accepted_absences" name="accepted_absences"></textarea>
+        <p class="field-error"></p>
+      </div>
+
+      <div class="field" id="field-llm_provider">
+        <label for="llm_provider">Model provider</label>
+        <p class="help">Which service answers. Only providers that speak the same request
+        shape are listed &mdash; one that did not would fail at the first request.
+        Choose <code>ollama</code> or <code>vllm</code> to use a model on this machine.</p>
+        <select id="llm_provider" name="llm_provider"></select>
+        <p class="field-error"></p>
+      </div>
+
+      <div class="field" id="field-llm_model">
+        <label for="llm_model">Model</label>
+        <p class="help">Required for a cloud provider, and deliberately so: leaving it
+        unset is how an unnoticed bill starts. Spoke refuses rather than picking one for
+        you, and names the free-tier options when it does. A local provider may be left
+        blank.</p>
+        <input type="text" id="llm_model" name="llm_model" autocomplete="off">
+        <p class="field-error"></p>
+      </div>
+
+      <div class="field" id="field-llm_base_url">
+        <label for="llm_base_url">LLM base URL (optional)</label>
+        <p class="help">Override the provider's default API endpoint, e.g. to point at a local model server. Leave blank to use the provider's default. If given, must start with http:// or https://.</p>
+        <input type="text" id="llm_base_url" name="llm_base_url" autocomplete="off">
+        <p class="field-error"></p>
+      </div>
+
+      <div class="field" id="field-brand_name">
+        <label for="brand_name">What this install is called</label>
+        <p class="help">Shown in the page title and header. Yours to set — this is your
+        copy of the tool. The package itself ships no organisation's name, so putting
+        yours here is the supported way to do it, and it never leaves this machine.
+        Leave blank for &ldquo;Spoke&rdquo;.</p>
+        <input type="text" id="brand_name" name="brand_name" autocomplete="off" maxlength="60">
+        <p class="field-error"></p>
+      </div>
+
+      <div class="field" id="field-brand_tagline">
+        <label for="brand_tagline">What it does, in one line</label>
+        <p class="help">Shown under the name in the header. Leave blank for the package's own line.</p>
+        <input type="text" id="brand_tagline" name="brand_tagline" autocomplete="off" maxlength="140">
+        <p class="field-error"></p>
+      </div>
+
+      <div class="field" id="field-brand_author">
+        <label for="brand_author">Who made this install</label>
+        <p class="help">Shown as &ldquo;by &hellip;&rdquo; beside the name in the header.
+        Leave blank and nothing is shown &mdash; the package ships nobody's name.</p>
+        <input type="text" id="brand_author" name="brand_author" autocomplete="off" maxlength="60">
+        <p class="field-error"></p>
+      </div>
+
+      <div class="field" id="field-brand_author_url">
+        <label for="brand_author_url">Where to find them</label>
+        <p class="help">An http:// or https:// address. With it, the author is a link;
+        without it, plain text. Nothing else is accepted &mdash; it becomes a link target.</p>
+        <input type="url" id="brand_author_url" name="brand_author_url" autocomplete="off" maxlength="200">
+        <p class="field-error"></p>
+      </div>
+
+      <div class="field" id="field-brand_logo_url">
+        <label for="brand_logo_url">Logo</label>
+        <p class="help">A same-origin path or an https:// address of an image, shown as the
+        mark beside the name. Linked, never copied &mdash; point it at where your brand
+        already lives. Leave blank for the package's own mark.</p>
+        <input type="text" id="brand_logo_url" name="brand_logo_url" autocomplete="off" maxlength="300">
+        <p class="field-error"></p>
+      </div>
+
+      <div class="field" id="field-board_stylesheet">
+        <label for="board_stylesheet">Board stylesheet (optional)</label>
+        <p class="help">A stylesheet the board links after its own, so you can restyle the
+        map to your own design system without editing any code. Redefining the
+        <code>--sev-*</code> custom properties on <code>:root</code> is enough. Must be a
+        same-origin path starting with <code>/</code> or an <code>https://</code> URL.</p>
+        <input type="text" id="board_stylesheet" name="board_stylesheet" autocomplete="off">
+        <p class="field-error"></p>
+      </div>
+
+      <div class="field" id="field-ntfy_topic">
+        <label for="ntfy_topic">Alert topic (ntfy)</label>
+        <p class="help">Where <code>doctor</code> pushes findings it has not reported before &mdash;
+        an unmet expectation arrives high-priority. Subscribe to this topic in the ntfy app on
+        your phone. The topic name is the whole secret, so make it unguessable. Leave blank and
+        alerts are off; every doctor run then says so.</p>
+        <input type="text" id="ntfy_topic" name="ntfy_topic" autocomplete="off" maxlength="64" spellcheck="false">
+        <p class="field-error"></p>
+      </div>
+
+      <div class="field" id="field-ntfy_server">
+        <label for="ntfy_server">Alert server (optional)</label>
+        <p class="help">Your own ntfy server, <code>https://</code> only. Leave blank for the
+        public <code>https://ntfy.sh</code>.</p>
+        <input type="text" id="ntfy_server" name="ntfy_server" autocomplete="off" spellcheck="false">
+        <p class="field-error"></p>
+      </div>
+
+      <div id="api-key-note">
+        <strong>Credential: <span id="key-state">checking&hellip;</span></strong><br>
+        The API key is not shown or editable here. It is read only from the
+        <code>LLM_API_KEY</code> environment variable when the server starts, and it is never
+        written to config.toml or sent to this page.
+      </div>
+
+      <p id="rewrite-note">Saving rewrites config.toml in full. Any comments in that file
+        (for example ones carried over from config.example.toml) are not preserved.</p>
+      <button type="submit" id="save-settings">Save</button>
+      <p id="save-status" role="status"></p>
+    </form>
+
+    <section id="axes" aria-labelledby="axes-h">
+      <h2 id="axes-h">Capability axes</h2>
+      <p class="help">What the scale scores each <span id="axes-noun">product</span> on. There is
+      deliberately no built-in list: the axes that matter are the project's, not this tool's.
+      Weights are relative &mdash; the share is what the composite uses, and it is
+      recomputed as you type. Rows are kept in the order shown; that is the order the
+      scale reads in.</p>
+      <p id="axes-noproject" hidden>No project is registered yet &mdash; the
+      <a href="/setup">first-run steps</a> do that.</p>
+      <form id="axes-form" hidden>
+        <div class="axes-head">
+          <label for="axes-project">Project</label>
+          <select id="axes-project"></select>
+          <label for="axes-max">Scores run from 0 to</label>
+          <input id="axes-max" type="number" min="1" max="100" step="1" value="5" style="width: 5rem;">
+        </div>
+        <table id="axes-table">
+          <thead>
+            <tr><th scope="col">Key</th><th scope="col">Label</th><th scope="col">Weight</th><th scope="col">Share</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr>
+          </thead>
+          <tbody id="axes-rows"></tbody>
+        </table>
+        <div class="axes-actions">
+          <button type="button" id="axes-add">Add an axis</button>
+          <button type="submit" id="axes-save">Save axes</button>
+        </div>
+        <p class="help">The key is the short name a score is recorded under
+        (<code>reliability</code>); the label is what the scale shows (<code>Reliability</code>).
+        Changing a key does not move the scores already recorded under the old one.</p>
+        <p id="axes-status" role="status"></p>
+      </form>
+    </section>
+  </main>
+  <script src="/static/envelope.js?v=<!--ASSET_V-->"></script>
+  <script src="/static/settings.js?v=<!--ASSET_V-->"></script>
+</body>
+</html>

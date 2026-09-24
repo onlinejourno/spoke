@@ -1,0 +1,132 @@
+/* First run. One column, four steps, the current one lit. The page is
+   the one an installer meets before anything exists, so it is quiet:
+   ground, stock for the steps, the register ink for what is done. */
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0; min-height: 100dvh;
+  background: var(--ground); color: var(--ink);
+  font: var(--step-0)/1.5 var(--font-ui);
+}
+#bar {
+  background: var(--stock); border-bottom: 1px solid var(--line);
+  padding: .45rem .9rem; display: flex; align-items: center; gap: 1rem;
+}
+#pages { margin-left: auto; display: flex; gap: .9rem; }
+#pages a { color: var(--ink-dim); text-decoration: none; border-bottom: 1px solid var(--line); }
+#pages { gap: .9rem; }
+#bar .report-open { margin-left: 0; }
+
+main { max-width: 46rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+#intro h1 { margin: 0 0 .5rem; font-size: var(--step-3); line-height: 1.15; }
+.lead { margin: 0 0 1.75rem; max-width: 60ch; color: var(--ink-dim); font-family: var(--font-prose); font-size: var(--step-1); line-height: 1.5; }
+
+#steps { list-style: none; margin: 0; padding: 0; display: grid; gap: .75rem; }
+.step {
+  background: var(--stock); border: 1px solid var(--line); border-radius: 3px;
+  padding: .9rem 1.1rem 1rem;
+}
+.step h2 { margin: 0 0 .35rem; font-size: var(--step-1); display: flex; align-items: baseline; gap: .6rem; }
+.step .num {
+  font: 600 var(--step--1)/1 var(--font-mono); color: var(--ink-dim);
+  border: 1px solid var(--line); border-radius: 50%; width: 1.5rem; height: 1.5rem;
+  display: inline-grid; place-items: center;
+}
+.step.done .num { color: var(--on-fill); background: var(--register); border-color: var(--register); }
+.step.current { border-color: var(--register); }
+.step.current .num { color: var(--register); border-color: var(--register); }
+.step.waiting { opacity: .55; }
+.step.done form, .step.done .actions, .step.done #store-candidates { display: none; }
+.why { margin: 0 0 .75rem; max-width: 62ch; color: var(--ink-dim); font-family: var(--font-prose); line-height: 1.5; }
+.hint { margin: .35rem 0; font-size: var(--step--1); color: var(--ink-dim); }
+code { font-family: var(--font-mono); font-size: .92em; }
+
+form { display: grid; gap: .35rem; max-width: 40rem; }
+label { font-weight: 600; font-size: var(--step--1); margin-top: .25rem; }
+input, textarea {
+  font: inherit; font-family: var(--font-mono); font-size: var(--step-0);
+  color: var(--ink); background: var(--ground); border: 1px solid var(--line);
+  border-radius: 2px; padding: .4rem .55rem; width: 100%;
+}
+textarea { resize: vertical; }
+button {
+  font: inherit; color: var(--ink); background: var(--ground);
+  border: 1px solid var(--line); border-radius: 3px; padding: .35rem .8rem; cursor: pointer;
+  justify-self: start;
+}
+button.primary, a.button.primary { border-color: var(--ink); }
+a.button { display: inline-block; color: var(--ink); background: var(--ground); border: 1px solid var(--line);
+  border-radius: 3px; padding: .35rem .8rem; text-decoration: none; }
+a.button:hover, a.button:focus-visible { border-color: var(--ink); }
+button:hover, button:focus-visible { border-color: var(--ink); }
+button[disabled] { opacity: .5; cursor: default; }
+.actions { display: flex; gap: .5rem; margin-bottom: .5rem; }
+.result { margin: .5rem 0 0; font-size: var(--step--1); color: var(--ink-dim); }
+.step.done .result { color: var(--ink); }
+
+/* minmax(0, 1fr), not the default 1fr: a grid track sizes to its item's
+   content unless told otherwise, so one long store path widened the
+   whole column past the page. Same reason min-width:0 appears on the
+   button and the code below -- three places, one rule: nothing here may
+   refuse to shrink. */
+#candidate-list {
+  list-style: none; margin: 0 0 .6rem; padding: 0;
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: .25rem;
+}
+.candidate {
+  display: flex; align-items: baseline; gap: .75rem; width: 100%; text-align: left;
+  padding: .35rem .55rem; min-width: 0; max-width: 100%;
+}
+/* min-width:0 is what makes the ellipsis above actually happen. A flex
+   item will not shrink below its content's intrinsic width without it,
+   so a long store path rendered a 1041px button inside a 736px column
+   and the whole first-run page scrolled sideways. The truncation was
+   always intended -- it just never fired. */
+.candidate code {
+  font-size: var(--step--1); overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; min-width: 0; flex: 1 1 auto;
+}
+.candidate .count { margin-left: auto; color: var(--ink-dim); font-size: var(--step--1); white-space: nowrap; }
+
+.out {
+  margin: .5rem 0 0; padding: .5rem .7rem; max-height: 14rem; overflow: auto;
+  background: var(--ground); border: 1px solid var(--line); border-radius: 2px;
+  font: var(--step--1)/1.5 var(--font-mono); white-space: pre-wrap;
+}
+#done { margin-top: 1.25rem; padding: .9rem 1.1rem; border: 1px solid var(--register); border-radius: 3px; background: var(--stock); }
+#done h2 { margin: 0 0 .25rem; font-size: var(--step-1); color: var(--register); }
+#done p { margin: 0; }
+#status { margin: 0; padding: .5rem .9rem; color: var(--ink-dim); }
+
+/* The third door, and the help beside each step.
+
+   The demo sits ABOVE the numbered steps and is styled like them but
+   without a number: it is not step zero, it is the other thing you
+   might do instead. Someone who has just cloned Spoke has nothing to
+   point it at, and the honest answer to "what does this do" should not
+   be a command in a README. */
+#step-demo {
+  background: var(--stock); border: 1px solid var(--line); border-radius: 3px;
+  padding: .9rem 1.1rem 1rem; margin: 0 0 1.75rem;
+}
+#step-demo h2 { margin: 0 0 .35rem; font-size: var(--step-1); }
+#step-demo form { display: grid; gap: .4rem; margin: .75rem 0 .5rem; max-width: 34rem; }
+#step-demo input { font: inherit; padding: .4rem .5rem; border: 1px solid var(--line); border-radius: 2px; }
+#demo-cmd { white-space: pre-wrap; word-break: break-all; }
+
+#own-heading {
+  margin: 0 0 .75rem; font-size: var(--step-1); color: var(--ink-dim);
+  font-weight: 600;
+}
+
+/* Help at the point of need: the longer answer next to the decision it
+   belongs to, closed by default so it costs a reader who does not need
+   it nothing. Not a link to a docs site -- there is no docs site, and a
+   question answered elsewhere is a question unanswered. */
+details.help { margin: .5rem 0 .25rem; font-size: var(--step--1); }
+details.help > summary {
+  cursor: pointer; color: var(--ink-dim);
+  text-decoration: underline; text-underline-offset: 2px;
+}
+details.help > summary::marker { color: var(--line); }
+details.help p { margin: .5rem 0 0; max-width: 62ch; color: var(--ink-dim); }
