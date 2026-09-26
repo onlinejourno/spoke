@@ -173,3 +173,28 @@ def test_superseded_is_closed_never_stale_and_must_say_by_what():
     assert "superseded" in CLOSED_STATES
     assert "superseded" in STALE_NEVER
     assert "superseded" in RULING_REQUIRED_STATES
+
+
+def test_a_checklist_note_survives_the_round_trip():
+    """The four questions ask what was observed and what would fail
+    silently. Both the parser and the serialiser built checklist items as
+    {text, done} only, so every answer was dropped on the way to disk:
+    `tick --note` printed success and stored nothing, and 20 of 20 ticked
+    items in the real store carried no evidence at all.
+
+    A checklist that records only that somebody ticked a box is the
+    decoration the four questions exist to replace.
+    """
+    from spoke.ledger.schema import parse_node, serialise_node
+
+    node = _node(checklist=({"text": "prove it", "done": True,
+                             "note": "observed live: HTTP 200, dated 2026-09-26"},
+                            {"text": "not yet", "done": False}))
+    text = serialise_node(node)
+    assert "observed live" in text, "the note must reach the file"
+
+    back = parse_node(text)
+    assert back.checklist[0]["note"] == "observed live: HTTP 200, dated 2026-09-26"
+    assert back.checklist[0]["done"] is True
+    # An item with no note keeps none -- absent is not an empty string.
+    assert "note" not in back.checklist[1]

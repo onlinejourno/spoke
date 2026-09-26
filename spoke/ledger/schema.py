@@ -85,7 +85,19 @@ def parse_node(text: str) -> Node:
     checklist = []
     for item in raw_check:
         if isinstance(item, dict) and "text" in item:
-            checklist.append({"text": str(item["text"]), "done": bool(item.get("done", False))})
+            # `note` is the ANSWER to the item, and the point of asking:
+            # the four questions want what was observed and what would
+            # fail silently. Dropping it here and in serialise_node left
+            # `tick --note` printing success and storing nothing -- a
+            # ticked box with no evidence behind it, which is the shape
+            # of check this ledger exists to replace.
+            entry = {"text": str(item["text"]), "done": bool(item.get("done", False))}
+            note = str(item.get("note") or "").strip()
+            if note:
+                # Absent, not empty: a note nobody wrote is not a note
+                # that says nothing.
+                entry["note"] = note
+            checklist.append(entry)
         elif isinstance(item, str):
             # "[ ] text" / "[x] text", the way a person types one
             done = item.strip().lower().startswith("[x]")
@@ -184,7 +196,11 @@ def _meta_from_node(node: Node) -> dict:
     if node.expects:
         meta["expects"] = [dict(e) for e in node.expects]
     if node.checklist:
-        meta["checklist"] = [{"text": c["text"], "done": bool(c["done"])} for c in node.checklist]
+        meta["checklist"] = [
+            {"text": c["text"], "done": bool(c["done"]),
+             **({"note": c["note"]} if str(c.get("note") or "").strip() else {})}
+            for c in node.checklist
+        ]
     if node.scores:
         meta["scores"] = [
             {
