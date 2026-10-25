@@ -10,6 +10,9 @@ config.local.toml
 config.toml.bak-*
 config.*.bak-*
 .superpowers/
+# doctor's default state file, written to the current directory when
+# --state is not given; it holds a real store's findings.
+.spoke-doctor.json
 *.egg-info/
 # packaging output
 build/
