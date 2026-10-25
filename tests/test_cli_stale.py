@@ -1,11 +1,16 @@
+from datetime import date
+
 import httpx
 from spoke.cli import main
 
 
 def _clean_store(tmp_path):
+    # `stale` reads the real clock, so a fixed date here ages into a
+    # failure on its own. "Verified today" stays clean on any run date.
     (tmp_path / "MEMORY.md").write_text("- [A](a.md) — hook\n")
     (tmp_path / "a.md").write_text(
-        "---\nname: a\ndescription: d\nmetadata:\n  verified: 2026-09-01\n---\n\nno citations\n")
+        "---\nname: a\ndescription: d\nmetadata:\n"
+        f"  verified: {date.today().isoformat()}\n---\n\nno citations\n")
     return tmp_path
 
 
