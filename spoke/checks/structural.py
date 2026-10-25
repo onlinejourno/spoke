@@ -62,6 +62,29 @@ def check_index(store: Path) -> list[Finding]:
                 for t in sorted(targets) if not (store / t).exists()]
     findings += [Finding("unindexed", p.name, p.name)
                  for p in _memory_files(store) if p.name not in targets]
+    return findings + _index_budget(text)
+
+
+# Claude Code loads MEMORY.md only up to 200 lines or 25,000 bytes. Past
+# either, the tail never reaches a session and nothing says so. These are
+# the loader's limits, not a preference, so they are not config.
+INDEX_LIMITS = {"lines": 200, "bytes": 25_000}
+INDEX_HEADROOM = {"lines": 10, "bytes": 2_000}
+
+
+def _index_budget(text: str) -> list[Finding]:
+    # Details carry the limit, never the live count: doctor keys findings
+    # on kind|file|detail, and a count would re-report the same condition
+    # as NEW every day the index grows.
+    used = {"lines": len(text.splitlines()), "bytes": len(text.encode())}
+    findings = []
+    for unit, limit in INDEX_LIMITS.items():
+        if used[unit] > limit:
+            findings.append(Finding("index-over-budget", "MEMORY.md",
+                                    f"{unit}: past {limit}, tail entries are not loaded"))
+        elif used[unit] > limit - INDEX_HEADROOM[unit]:
+            findings.append(Finding("index-near-budget", "MEMORY.md",
+                                    f"{unit}: within {INDEX_HEADROOM[unit]} of the {limit} limit"))
     return findings
 
 

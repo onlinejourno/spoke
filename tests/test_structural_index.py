@@ -106,3 +106,51 @@ def test_whitespace_only_required_field_counts_as_missing(tmp_path):
 def test_present_non_empty_field_is_not_reported(tmp_path):
     (tmp_path / "a.md").write_text('---\nname: real-name\ndescription: d\n---\n\nbody\n')
     assert [f for f in check_schema(tmp_path) if f.detail in ("name", "description")] == []
+
+
+# Claude Code's loader stops reading MEMORY.md at 200 lines or 25,000
+# bytes, whichever comes first; everything past that never reaches a
+# session, and nothing turns red. These pin the check that makes it red.
+def _index_of(tmp_path, lines: int, width: int = 20):
+    (tmp_path / "a.md").write_text("x\n")
+    body = ["- [A](a.md) — hook"] + ["x" * width] * (lines - 1)
+    (tmp_path / "MEMORY.md").write_text("\n".join(body) + "\n")
+
+
+def _budget(tmp_path):
+    return [(f.kind, f.detail) for f in check_index(tmp_path) if "budget" in f.kind]
+
+
+def test_index_comfortably_under_budget_is_quiet(tmp_path):
+    _index_of(tmp_path, 150)
+    assert _budget(tmp_path) == []
+
+
+def test_index_past_line_limit_is_over_budget(tmp_path):
+    _index_of(tmp_path, 201)
+    assert ("index-over-budget", "lines: past 200, tail entries are not loaded") in _budget(tmp_path)
+
+
+def test_index_near_line_limit_warns(tmp_path):
+    _index_of(tmp_path, 194)
+    assert _budget(tmp_path) == [("index-near-budget", "lines: within 10 of the 200 limit")]
+
+
+def test_index_past_byte_limit_is_over_budget(tmp_path):
+    _index_of(tmp_path, 100, width=260)  # ~26 KB in 100 lines
+    assert _budget(tmp_path) == [
+        ("index-over-budget", "bytes: past 25000, tail entries are not loaded")]
+
+
+def test_index_near_byte_limit_warns(tmp_path):
+    _index_of(tmp_path, 100, width=235)  # ~23.6 KB
+    assert _budget(tmp_path) == [("index-near-budget", "bytes: within 2000 of the 25000 limit")]
+
+
+def test_budget_detail_is_stable_as_the_index_grows(tmp_path):
+    # doctor keys findings on kind|file|detail; a count in the detail
+    # would re-report the same condition as NEW every day it changes.
+    _index_of(tmp_path, 195)
+    first = _budget(tmp_path)
+    _index_of(tmp_path, 197)
+    assert _budget(tmp_path) == first
